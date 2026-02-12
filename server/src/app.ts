@@ -1,12 +1,10 @@
 import fastify from 'fastify';
 
 export function buildApp() {
-    const server = fastify();
+    const app = fastify();
 
-    server.get('/', async (request, reply) => {
-        return 'Hello World!\n';
-    });
+    app.register(userRoutes);
 
-    return server;
+    return app;
 }
 
