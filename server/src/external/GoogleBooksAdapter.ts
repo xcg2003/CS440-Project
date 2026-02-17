@@ -1,30 +1,34 @@
 import type { GoogleBooksResponse } from "./google-books.types.js";
 
+export interface GoogleBookResult {
+    id: string;
+    title: string;
+    authors: string[];
+}
+
 export class GoogleBooksAdapter {
     constructor(
         private readonly apiKey: string
     ) {}
 
-    async getBookTitles(title: string): Promise<string[]> {
-        const searchUrl = `https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(title)}&key=${this.apiKey}`;
+    async getBooks(searchTerm: string): Promise<GoogleBookResult[]> {
+        const searchUrl = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchTerm)}&key=${this.apiKey}`;
 
-        let bookTitles: string[] = [];
         try {
             const response = await fetch(searchUrl);
-            let results = await response.json() as GoogleBooksResponse;
+            const results = await response.json() as GoogleBooksResponse;
 
-            if(results.totalItems === 0 || results.items === undefined){
-                return bookTitles;
+            if (results.totalItems === 0 || results.items === undefined) {
+                return [];
             }
 
-            results.items.forEach(item => {
-                const titles = item.volumeInfo.title;
-                bookTitles.push(titles ? titles : "No Title Found");
-            });
-
-            return bookTitles;
-        } catch(error) {
-            console.error("GoogleBooksAdapter getBookTitles error:", error);
+            return results.items.map((item) => ({
+                id: item.id,
+                title: item.volumeInfo.title ?? "No Title Found",
+                authors: item.volumeInfo.authors ?? [],
+            }));
+        } catch (error) {
+            console.error("GoogleBooksAdapter getBooks error:", error);
             throw error;
         }
     }

@@ -4,9 +4,11 @@ import fastifyStatic from '@fastify/static';
 import { fileURLToPath } from 'url';
 
 import { userRoutes } from './routes/users/users.js';
-import { booksRoutes } from './routes/books/books.js';
+import { booksRoutes, SHARED_USER_ID } from './routes/books/books.js';
 import { GoogleBooksAdapter } from './external/GoogleBooksAdapter.js';
 import { staticRoutes } from './routes/static/static.js';
+import { createDatabase } from './db/database.js';
+import { BookRepository } from './repository/book.repository.js';
 
 import * as dotenv from 'dotenv';
 
@@ -14,6 +16,14 @@ export function buildApp() {
     const app = fastify();
 
     dotenv.config();
+
+    const db = createDatabase();
+    const bookRepo = new BookRepository(db);
+    // Ensure the single shared user exists for the prototype
+    const ensureUser = db.prepare(
+        "INSERT OR IGNORE INTO Users (user_id, username, password) VALUES (?, ?, ?)"
+    );
+    ensureUser.run(SHARED_USER_ID, "shared", "");
 
     // Serve static files
     const __filename = fileURLToPath(import.meta.url);
@@ -27,7 +37,8 @@ export function buildApp() {
         process.env.GOOGLE_API_KEY
     );
     app.register(booksRoutes, {
-        googleBooksAdapter
+        googleBooksAdapter,
+        bookRepo,
     });
 
     app.register(userRoutes);

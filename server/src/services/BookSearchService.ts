@@ -2,35 +2,29 @@ import { Book } from "../domain/book.js";
 import type { GoogleBooksAdapter } from "../external/GoogleBooksAdapter.js";
 
 type SearchResults = {
-    success: boolean,
-    books: Book[]
-}
+    success: boolean;
+    books: Book[];
+};
 
 export class BookSearchService {
     constructor(
         private readonly googleBooksAdapter: GoogleBooksAdapter
-    ){}
+    ) {}
 
     public async search(searchTerm: string): Promise<SearchResults> {
-        // Cache stuff will go here
-
         try {
-            const titles = await this.googleBooksAdapter.getBookTitles(searchTerm);
-            const books: Book[] = []; 
-
-            titles.forEach(title => {
-                const book = new Book("1", title, []);
-                books.push(book);
-            });
-
-            return {
-                success: true,
-                books: books
+            const results = await this.googleBooksAdapter.getBooks(searchTerm);
+            const books: Book[] = results.map(
+                (r) => new Book(r.id, r.title, r.authors)
+            );
+            return { 
+                success: true, 
+                books 
             };
-        } catch(error) {
-            return {
-                success: false,
-                books: []
+        } catch {
+            return { 
+                success: false, 
+                books: [] 
             };
         }
     }
