@@ -5,7 +5,7 @@ interface SearchBody {
     searchTerm?: string;
 }
 
-export default async function search(app: FastifyInstance, bookSearchService: BookSearchService) {
+export default async function searchRoute(app: FastifyInstance, bookSearchService: BookSearchService) {
     app.post<{ Body: SearchBody }>("/search", async (request, reply) => {
         const searchTerm = request.body?.searchTerm ?? "";
         const results = await bookSearchService.search(searchTerm);
