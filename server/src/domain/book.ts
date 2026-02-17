@@ -5,3 +5,4 @@ export class Book {
         public readonly authors: string[]
     ) {}
 }
+

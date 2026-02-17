@@ -1,20 +1,19 @@
-import { GoogleBooksResponse } from "./google-books.types";
+import type { GoogleBooksResponse } from "./google-books.types.js";
 
 export class GoogleBooksAdapter {
     constructor(
-
+        private readonly apiKey: string
     ) {}
 
     async getBookTitles(title: string): Promise<string[]> {
-        const API_KEY = process.env.GOOGLE_API_KEY;
-        const searchUrl = `https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(title)}&key=${API_KEY}`;
+        const searchUrl = `https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(title)}&key=${this.apiKey}`;
 
         let bookTitles: string[] = [];
         try {
             const response = await fetch(searchUrl);
-            let results = await response.json();
+            let results = await response.json() as GoogleBooksResponse;
 
-            if(results.totalItems === 0){
+            if(results.totalItems === 0 || results.items === undefined){
                 return bookTitles;
             }
 
@@ -25,7 +24,8 @@ export class GoogleBooksAdapter {
 
             return bookTitles;
         } catch(error) {
-            console.log(error);
+            console.error("GoogleBooksAdapter getBookTitles error:", error);
+            throw error;
         }
     }
 }

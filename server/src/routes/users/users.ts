@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
-import home from "./home.js";
+import login from "./login.js";
 
 export async function userRoutes(app: FastifyInstance) {
-    home(app);
+    login(app);
 }
