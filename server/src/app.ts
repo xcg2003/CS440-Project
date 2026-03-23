@@ -9,6 +9,7 @@ import { GoogleBooksAdapter } from './external/GoogleBooksAdapter.js';
 import { staticRoutes } from './routes/static/static.js';
 import { createDatabase } from './db/database.js';
 import { BookRepository } from './repository/book.repository.js';
+import { LibraryService } from './services/LibraryService.js';
 
 import * as dotenv from 'dotenv';
 
@@ -19,6 +20,7 @@ export function buildApp() {
 
     const db = createDatabase();
     const bookRepo = new BookRepository(db);
+    const libraryService = new LibraryService(bookRepo);
     // Ensure the single shared user exists for the prototype
     const ensureUser = db.prepare(
         "INSERT OR IGNORE INTO Users (user_id, username, password) VALUES (?, ?, ?)"
@@ -38,11 +40,10 @@ export function buildApp() {
     );
     app.register(booksRoutes, {
         googleBooksAdapter,
-        bookRepo,
+        libraryService,
     });
 
     app.register(userRoutes);
 
     return app;
 }
-
