@@ -1,0 +1,1 @@
+{"version":3,"file":"StaticController.d.ts","sourceRoot":"","sources":["StaticController.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,cAAc,EAAE,YAAY,EAAE,MAAM,SAAS,CAAC;AAE5D,qBAAa,gBAAgB;IACzB,WAAW,CAAC,QAAQ,EAAE,cAAc,EAAE,KAAK,EAAE,YAAY,GAAG,IAAI;IAIhE,YAAY,CAAC,QAAQ,EAAE,cAAc,EAAE,KAAK,EAAE,YAAY,GAAG,IAAI;CAGpE"}

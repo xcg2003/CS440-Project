@@ -1,10 +1,10 @@
-CREATE TABLE Users (
+CREATE TABLE IF NOT EXISTS Users (
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL,
     password TEXT NOT NULL
 );
 
-CREATE TABLE Books (
+CREATE TABLE IF NOT EXISTS Books (
     book_id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     author TEXT,
@@ -12,12 +12,12 @@ CREATE TABLE Books (
     FOREIGN KEY(user_id) REFERENCES Users(user_id)
 );
 
-CREATE TABLE Authors (
+CREATE TABLE IF NOT EXISTS Authors (
     author_id INTEGER PRIMARY KEY AUTOINCREMENT,
     author_name TEXT NOT NULL
 );
 
-CREATE TABLE Book_Author (
+CREATE TABLE IF NOT EXISTS Book_Author (
     book_id INTEGER,
     author_id INTEGER,
     PRIMARY KEY (book_id, author_id),

@@ -1,5 +1,5 @@
-import { Book } from "../domain/book.js";
-import type { GoogleBooksAdapter } from "../external/GoogleBooksAdapter.js";
+import { Book } from '../models/Book.js';
+import type { GoogleBooksAdapter } from '../external/GoogleBooksAdapter.js';
 
 type SearchResults = {
     success: boolean;
@@ -17,15 +17,9 @@ export class BookSearchService {
             const books: Book[] = results.map(
                 (r) => new Book(r.id, r.title, r.authors)
             );
-            return { 
-                success: true, 
-                books 
-            };
+            return { success: true, books };
         } catch {
-            return { 
-                success: false, 
-                books: [] 
-            };
+            return { success: false, books: [] };
         }
     }
 }

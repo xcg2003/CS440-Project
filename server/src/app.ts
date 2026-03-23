@@ -2,23 +2,24 @@ import fastify from 'fastify';
 import path from 'path';
 import fastifyStatic from '@fastify/static';
 import { fileURLToPath } from 'url';
-
-import { userRoutes } from './routes/users/users.js';
-import { booksRoutes, SHARED_USER_ID } from './routes/books/books.js';
-import { GoogleBooksAdapter } from './external/GoogleBooksAdapter.js';
-import { staticRoutes } from './routes/static/static.js';
-import { createDatabase } from './db/database.js';
-import { BookRepository } from './repository/book.repository.js';
-
 import * as dotenv from 'dotenv';
 
-export function buildApp() {
-    const app = fastify();
+import { createDatabase } from './db/database.js';
+import { BookRepository } from './models/BookRepository.js';
+import { GoogleBooksAdapter } from './external/GoogleBooksAdapter.js';
+import { bookRoutes } from './routes/bookRoutes.js';
+import { userRoutes } from './routes/userRoutes.js';
+import { staticRoutes } from './routes/staticRoutes.js';
+import { SHARED_USER_ID } from './controllers/LibraryController.js';
 
+export function buildApp() {
     dotenv.config();
+
+    const app = fastify();
 
     const db = createDatabase();
     const bookRepo = new BookRepository(db);
+
     // Ensure the single shared user exists for the prototype
     const ensureUser = db.prepare(
         "INSERT OR IGNORE INTO Users (user_id, username, password) VALUES (?, ?, ?)"
@@ -31,18 +32,12 @@ export function buildApp() {
     app.register(fastifyStatic, {
         root: path.join(__dirname, '../../client'),
     });
+
+    const googleBooksAdapter = new GoogleBooksAdapter(process.env.GOOGLE_API_KEY);
+
     app.register(staticRoutes);
-
-    const googleBooksAdapter = new GoogleBooksAdapter(
-        process.env.GOOGLE_API_KEY
-    );
-    app.register(booksRoutes, {
-        googleBooksAdapter,
-        bookRepo,
-    });
-
+    app.register(bookRoutes, { googleBooksAdapter, bookRepo });
     app.register(userRoutes);
 
     return app;
 }
-
