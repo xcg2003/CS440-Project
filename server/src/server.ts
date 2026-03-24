@@ -1,4 +1,4 @@
-import { buildApp } from "./app.js";
+import { buildApp } from "./adapters/driving/http/app.js";
 
 const app = buildApp();
 
