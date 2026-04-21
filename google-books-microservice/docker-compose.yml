@@ -1,0 +1,74 @@
+version: "3.9"
+
+services:
+
+  # ── Book Search Service ──────────────────────────────────────────────────
+  book-search-service:
+    build:
+      context: ./book-search-service
+      dockerfile: Dockerfile
+    container_name: book-search-service
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+    volumes:
+      - search-data:/data
+    networks:
+      - books-net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ── Book Library Service ─────────────────────────────────────────────────
+  book-library-service:
+    build:
+      context: ./book-library-service
+      dockerfile: Dockerfile
+    container_name: book-library-service
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    volumes:
+      # Persist the SQLite database file outside the container
+      - library-data:/data
+    networks:
+      - books-net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3002/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ── API Gateway ──────────────────────────────────────────────────────────
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - BOOK_SEARCH_SERVICE_URL=http://book-search-service:3001
+      - BOOK_LIBRARY_SERVICE_URL=http://book-library-service:3002
+    depends_on:
+      book-search-service:
+        condition: service_healthy
+      book-library-service:
+        condition: service_healthy
+    networks:
+      - books-net
+
+# ── Shared network ───────────────────────────────────────────────────────────
+networks:
+  books-net:
+    driver: bridge
+
+# ── Named volumes ────────────────────────────────────────────────────────────
+volumes:
+  search-data:
+  library-data:
