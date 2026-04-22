@@ -1,0 +1,25 @@
+services:
+
+  book-search-service:
+    build: ./book-search-service
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+
+  book-library-service:
+    build: ./book-library-service
+
+  users:
+    build: ./users
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - BOOK_SEARCH_SERVICE_URL=http://book-search-service:3001
+      - BOOK_LIBRARY_SERVICE_URL=http://book-library-service:3002
+      - USER_SERVICE_URL=http://users:3003
+    depends_on:
+      - book-search-service
+      - book-library-service
+      - users

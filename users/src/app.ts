@@ -1,7 +1,4 @@
 import fastify from 'fastify';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
 import { userRoutes } from './routes/userRoutes.js';
 import { createDatabase } from './db/database.js';
 import { UserRepository } from './repository/user.repository.js';
@@ -12,7 +9,7 @@ export function buildApp() {
     const db = createDatabase();
     const userRepo = new UserRepository(db);
 
-    app.register(userRoutes);
+    app.register(userRoutes, { userRepo });
 
     return app;
 }
